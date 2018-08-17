@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pic
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: env-production
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  namespace: default
+  name: default-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: pic

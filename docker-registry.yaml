@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+  namespace: pic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registry
+  template:
+    metadata:
+      labels:
+        app: registry
+    spec:
+      containers:
+        - name: registry
+          image: registry:2.6.2
+          env:
+            - name: REGISTRY_HTTP_SECRET
+              value: azerty
+            - name: REGISTRY_HTTP_ADDR
+              value: ":5000"
+            - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
+              value: "/var/lib/registry"
+          ports:
+          - name: http
+            containerPort: 5000
+          volumeMounts:
+          - name: image-store
+            mountPath: "/var/lib/registry"
+      volumes:
+      - name: image-store
+        hostPath:
+          path: /srv/registry
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: pic
+  name: registry
+spec:
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+  selector:
+    app: registry
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: registry-ingress
+  namespace: pic
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - registry.192.168.99.100.nip.io
+    secretName: registry-tls
+  rules:
+  - host: registry.192.168.99.100.nip.io
+    http:
+      paths:
+      - backend:
+          serviceName: registry
+          servicePort: 5000
+        path: /

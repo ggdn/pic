@@ -1,0 +1,128 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  namespace: default
+  name: default-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: pic
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: pic
+  name: jenkins
+  labels:
+    type: jenkins
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/pic/jenkins
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  namespace: pic
+  name: data-claim-jenkins
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+    matchLabels:
+      type: jenkins
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: pic
+  name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      securityContext:
+        runAsUser: 1000
+      volumes:
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: data-claim-jenkins
+      containers:
+        - name: jenkins
+          image: jenkins:1.0
+          ports:
+            - name: http-port
+              containerPort: 8080
+            - name: jnlp-port
+              containerPort: 50000
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: pic
+  name: jenkins
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: jenkins
+---
+# [START jenkins_service_discovery]
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-discovery
+  namespace: pic
+spec:
+  selector:
+    app: jenkins
+  ports:
+    - protocol: TCP
+      port: 50000
+      targetPort: 50000
+      name: slaves
+# [END jenkins_service_discovery]
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: pic
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - jenkins.192.168.99.100.nip.io
+    secretName: jenkins-tls
+  rules:
+  - host: jenkins.192.168.99.100.nip.io
+    http:
+      paths:
+      - backend:
+          serviceName: jenkins
+          servicePort: 8080
+        path: /
