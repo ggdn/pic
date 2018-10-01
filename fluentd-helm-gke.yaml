@@ -1,0 +1,13 @@
+# https://github.com/kubernetes/charts/blob/master/stable/fluent-bit/values.yaml
+fluent-bit:
+  image:
+    fluent_bit:
+      repository: fluent/fluent-bit
+      tag: 0.14.1
+  parsers:
+    json:
+    - name: docker
+      timeKey: time
+      timeFormat: "%Y-%m-%dT%H:%M:%S %z"
+      decodeFieldAs: json
+      decodeField: log
