@@ -19,7 +19,7 @@ $ helm install --name nginx-ingress stable/nginx-ingress --set controller.servic
 ```
 
 ## EFK
-
+```bash
 $ helm repo add akomljen-charts https://raw.githubusercontent.com/komljen/helm-charts/master/charts/
 $ helm install --name es-operator \
     --namespace logging \
@@ -27,7 +27,7 @@ $ helm install --name es-operator \
     akomljen-charts/elasticsearch-operator
 $ helm install --name efk --namespace logging akomljen-charts/efk -f fluentd-helm-gke.yaml
 $ kubectl apply -f kibana-ingress-gke.yaml -n=logging
-
+```
 ## Jenkins
 ```bash
 $ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout jenkins.35.193.56.167.nip.io.key -out jenkins.35.193.56.167.nip.io.crt -subj "//CN=jenkins.35.193.56.167.nip.io\O=jenkins.35.193.56.167.nip.io"
@@ -49,6 +49,6 @@ $ kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-pa
 
 ## KeyClock
 ```bash
-$ helm install --name keycloak-db --set postgresUser=admin --set postgresPassword=password --set postgresDatabase=keycloak-db stable/postgresql --namespace env-production
-$ kubectl apply -f keyclock.yaml --namespace=env-production
+$ helm install --name keycloak stable/keycloak -f keycloak-helm.yaml --namespace env-production
+$ kubectl get secret --namespace env-production keycloak-http -o jsonpath="{.data.password}" | base64 --decode; echo
 ```
