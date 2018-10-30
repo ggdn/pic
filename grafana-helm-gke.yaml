@@ -707,6 +707,32 @@ dashboards:
           "version": 5
         }
 
+## Grafana's primary configuration
+## NOTE: values in map will be converted to ini format
+## ref: http://docs.grafana.org/installation/configuration/
+##
+grafana.ini:
+  paths:
+    data: /var/lib/grafana/data
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  analytics:
+    check_for_updates: true
+  log:
+    mode: console
+  server:
+    root_url: http://grafana.35.193.56.167.nip.io
+  smtp:
+    enabled: true
+    host: smtp.gmail.com:465
+    skip_verify: false
+    from_address: criblevibes@gmail.com
+    from_name: Grafana
+
+smtp:
+  existingSecret: smtpsecret
+
 server:
   installPlugins: grafana-clock-panel,grafana-piechart-panel
 

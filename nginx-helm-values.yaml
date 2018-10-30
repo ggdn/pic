@@ -1,0 +1,12 @@
+controller:
+  service:
+    externalTrafficPolicy: "Local"
+    loadBalancerIP: "35.193.56.167"
+  stats:
+    enabled: true
+  metrics:
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"

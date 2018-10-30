@@ -15,7 +15,7 @@ $ kubectl create clusterrolebinding add-on-cluster-admin --clusterrole=cluster-a
 $ kubectl proxy
 $ kubectl apply -f namespace.yaml
 $ kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --user=admin --user=kubelet --group=system:serviceaccounts:env-production
-$ helm install --name nginx-ingress stable/nginx-ingress --set controller.service.externalTrafficPolicy=Local --set controller.service.loadBalancerIP=35.193.56.167
+$ helm install --name nginx-ingress stable/nginx-ingress -f nginx-helm-values.yaml
 ```
 
 ## EFK
@@ -43,6 +43,7 @@ printf $(kubectl get secret --namespace pic jenkins -o jsonpath="{.data.jenkins-
 ## Prometheus / Grafana (non utilisé)
 ```bash
 $ helm install --name prometheus stable/prometheus -f prometheus-helm-gke.yaml --namespace monitoring
+$ kubectl apply -f grafana-google-secret.yaml
 $ helm install --name grafana stable/grafana -f grafana-helm-gke.yaml --namespace monitoring
 $ kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
