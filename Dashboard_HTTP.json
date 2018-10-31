@@ -398,11 +398,11 @@
             "type": "query"
           }
         ],
-        "executionErrorState": "alerting",
+        "executionErrorState": "keep_state",
         "frequency": "60s",
         "handler": 1,
-        "name": "[DEV] Server Responses By 5xx Http response code alert",
-        "noDataState": "alerting",
+        "name": "Server Responses By 5xx Http response code alert",
+        "noDataState": "keep_state",
         "notifications": []
       },
       "aliasColors": {},
@@ -426,8 +426,8 @@
         "min": false,
         "rightSide": true,
         "show": true,
-        "sort": "avg",
-        "sortDesc": true,
+        "sort": null,
+        "sortDesc": null,
         "total": true,
         "values": true
       },
@@ -653,7 +653,7 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {
@@ -684,5 +684,5 @@
   "timezone": "browser",
   "title": "Dashboard HTTP",
   "uid": "credor-dev-http",
-  "version": 6
+  "version": 8
 }
